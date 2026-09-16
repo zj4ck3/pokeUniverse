@@ -1,15 +1,19 @@
+import requests
 __author__ = "zj4ck3"
 
 # fetches Pokemon information from the API
 # return data of the pokemon if are available, None otherwise
-def pokemon_API_data(pokemon) -> dict:
-    import requests
-
+# if the user choose option 2 it choose a random name for fetch the info
+def pokemon_API_data(pokemon:str, randomize=False, URL=None) -> dict:
     header = {"Content-Type":"application/json"}
-    URL = f"https://pokeapi.co/api/v2/pokemon/{pokemon}"
+    if randomize:
+        from random import choice
+        true_URL = "https://pokeapi.co/api/v2/pokemon?limit=10000000" # hardcoded for all pokemons
+    else:
+        true_URL = f"https://pokeapi.co/api/v2/pokemon/{pokemon}"
 
     try:
-        response = requests.get(URL,headers=header,timeout=10)
+        response = requests.get(true_URL,headers=header,timeout=10)
         response.raise_for_status()
         pokeData = response.json() # create the dict
 
@@ -33,6 +37,14 @@ def pokemon_API_data(pokemon) -> dict:
         print(f"\n[X] Error during the request: {error}\n")
         return
 
+    if randomize: # recursive call
+        pokemon_list = pokeData.get("results", [])
+        if not pokemon_list:
+            print("\n[X] No pokemon available")
+            return None
+
+        random_pokemon = choice(pokemon_list)
+        return pokemon_API_data(random_pokemon["name"])
     return pokeData
 
 # print pokemon info in human readable format
@@ -142,9 +154,12 @@ if __name__ == "__main__":
 
                 if pokeData != None:
                     print_pokemon_info(pokeData)
+                else:
+                    print("[X] No info found for that pokemon")
 
             elif option == 2:
-                print("2")
+                pokeData = pokemon_API_data(None, randomize=True)
+                print_pokemon_info(pokeData)
 
             elif option == 3:
                 print("3")
