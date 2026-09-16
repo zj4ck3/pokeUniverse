@@ -2,7 +2,7 @@ __author__ = "zj4ck3"
 
 # fetches Pokemon information from the API
 # return data of the pokemon if are available, None otherwise
-def pokemon_description(pokemon) -> dict:
+def pokemon_API_data(pokemon) -> dict:
     import requests
 
     header = {"Content-Type":"application/json"}
@@ -35,6 +35,85 @@ def pokemon_description(pokemon) -> dict:
 
     return pokeData
 
+# print pokemon info in human readable format
+def print_pokemon_info(pokemon: dict) -> None:
+    # Get the Pokémon name.
+    # Use "Unknown" if the "name" key does not exist.
+    name = pokemon.get("name", "Unknown").capitalize()
+
+    # Get the Pokémon ID.
+    # Use "?" if the "id" key does not exist.
+    pokemon_id = pokemon.get("id", "?")
+    height = pokemon.get("height")
+    weight = pokemon.get("weight")
+
+    print()
+    print("=" * 40)
+    print(f"[V] {name} (#{pokemon_id})")
+    print("=" * 40)
+
+    # Convert height from decimeters to meters.
+    if height is not None:
+        print(f"Height: {height / 10:.1f} m")
+    else:
+        print("Height: unavailable")
+
+    # Convert weight from hectograms to kilograms.
+    if weight is not None:
+        print(f"Weight: {weight / 10:.1f} kg")
+    else:
+        print("Weight: unavailable")
+
+    # Extract the names of the Pokémon's types.
+    types = [
+        item["type"]["name"].capitalize()
+        for item in pokemon.get("types", [])
+        if "type" in item and "name" in item["type"]
+    ]
+
+    if types:
+        print(f"Types: {', '.join(types)}")
+    else:
+        print("Types: unavailable")
+
+    # Extract the names of the Pokémon's abilities.
+    abilities = [
+        item["ability"]["name"]
+        .replace("-", " ")
+        .capitalize()
+        for item in pokemon.get("abilities", [])
+        if "ability" in item and "name" in item["ability"]
+    ]
+
+    if abilities:
+        print(f"Abilities: {', '.join(abilities)}")
+    else:
+        print("Abilities: unavailable")
+
+    # Create a dictionary containing the base statistics.
+    stats = {
+        item["stat"]["name"]: item["base_stat"]
+        for item in pokemon.get("stats", [])
+        if "stat" in item and "base_stat" in item
+    }
+
+    print("\nBase stats:")
+
+    if stats:
+        # Print each statistic on a separate line.
+        for stat_name, value in stats.items():
+            formatted_name = (
+                stat_name.replace("-", " ").capitalize()
+            )
+
+            print(f"  {formatted_name:<17} {value}")
+    else:
+        print("  Unavailable")
+
+    print("=" * 40)
+    input("[V] Press anything to continue: ")
+    return
+
 # for option 5
 def give_information() -> None:
     print()
@@ -59,10 +138,10 @@ if __name__ == "__main__":
 
             if option == 1:
                 pokemon = input("[?] Name of the pokemon: ").capitalize()
-                pokeData = pokemon_description(pokemon) # the description must be readable
+                pokeData = pokemon_API_data(pokemon) # the description must be readable
 
                 if pokeData != None:
-                    print(pokeData)
+                    print_pokemon_info(pokeData)
 
             elif option == 2:
                 print("2")
