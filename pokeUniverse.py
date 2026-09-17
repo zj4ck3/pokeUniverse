@@ -4,7 +4,7 @@ __author__ = "zj4ck3"
 # fetches Pokemon information from the API
 # return data of the pokemon if are available, None otherwise
 # if the user choose option 2 it choose a random name for fetch the info
-def pokemon_API_data(pokemon:str, randomize=False, URL=None) -> dict:
+def pokemon_API_data(pokemon:str, randomize:bool=False) -> dict:
     header = {"Content-Type":"application/json"}
     if randomize:
         from random import choice
@@ -48,7 +48,8 @@ def pokemon_API_data(pokemon:str, randomize=False, URL=None) -> dict:
     return pokeData
 
 # print pokemon info in human readable format
-def print_pokemon_info(pokemon: dict) -> None:
+# or make the user guess one
+def print_pokemon_info(pokemon:dict, guess:bool=False) -> None:
     # Get the Pokémon name.
     # Use "Unknown" if the "name" key does not exist.
     name = pokemon.get("name", "Unknown").capitalize()
@@ -61,7 +62,10 @@ def print_pokemon_info(pokemon: dict) -> None:
 
     print()
     print("=" * 40)
-    print(f"[V] {name} (#{pokemon_id})")
+    if guess:
+        print("[V] Guess the pokemon")
+    else:
+        print(f"[V] {name} (#{pokemon_id})")
     print("=" * 40)
 
     # Convert height from decimeters to meters.
@@ -123,15 +127,30 @@ def print_pokemon_info(pokemon: dict) -> None:
         print("  Unavailable")
 
     print("=" * 40)
-    input("[V] Press anything to continue: ")
+    if guess:
+        print()
+        for i in range(3):
+            name_guess = input("[?] Enter the name of the pokemon: ")
+            if name_guess.capitalize() == name:
+                input("[V] Correct !!! Press anything to continue: ")
+                return
+            else:
+                if i+1 == 3:
+                    print(f"[X] Ultimate guess: wrong!! the name was: {name}")
+                    input("[X] Press anything to continue: ")
+                else:
+                    print(f"[X] Wrong, guess {i+1}/3")
+    else:
+        input("[V] Press anything to continue: ")
     return
 
 # for option 5
 def give_information() -> None:
     print()
-    print("All information available in README.md file")
-    print("For pull requests or comment contact me at: https://github.com/zj4ck3/pokeUniverse.git")
-    print(f"Created by: {__author__}")
+    print("[#] All information available in README.md file")
+    print("[#] For pull requests or comment contact me at: https://github.com/zj4ck3/pokeUniverse.git")
+    print(f"[#] Created by: {__author__}")
+    input("[#] Press anything to continue: ")
     return
 
 
@@ -162,7 +181,8 @@ if __name__ == "__main__":
                 print_pokemon_info(pokeData)
 
             elif option == 3:
-                print("3")
+                pokeData = pokemon_API_data(None, randomize=True)
+                print_pokemon_info(pokeData,guess=True)
 
             elif option == 4:
                 print("4")
