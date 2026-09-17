@@ -28,7 +28,7 @@ def pokemon_API_data(pokemon:str, randomize:bool=False) -> dict:
 
     except requests.exceptions.HTTPError as error:
         if response.status_code == 404:
-            print("\n[X] Pokemon not found")
+            print(f"\n[X] Pokemon {pokemon} not found")
         else:
             print(f"\n[X] HTTP Error: {error}")
         return
@@ -65,7 +65,7 @@ def print_pokemon_info(pokemon:dict, guess:bool=False) -> None:
     if guess:
         print("[V] Guess the pokemon")
     else:
-        print(f"[V] {name} (#{pokemon_id})")
+        print(f"{name} (#{pokemon_id})")
     print("=" * 40)
 
     # Convert height from decimeters to meters.
@@ -144,6 +144,94 @@ def print_pokemon_info(pokemon:dict, guess:bool=False) -> None:
         input("[V] Press anything to continue: ")
     return
 
+# compare 2 pokemon for option 4
+# i could put it all in print_pokemon_info but that would be caothic
+# and i also don't feel like it
+def compare_pokemon(pokemon1: dict, pokemon2: dict) -> None:
+    # Get the Pokémon names and IDs.
+    name1 = pokemon1.get("name", "Unknown").capitalize()
+    name2 = pokemon2.get("name", "Unknown").capitalize()
+    pokemon_id1 = pokemon1.get("id", "?")
+    pokemon_id2 = pokemon2.get("id", "?")
+
+    print()
+    print("=" * 50)
+    print("[V] Pokemon comparison")
+    print("=" * 50)
+    print(f"{name1} (#{pokemon_id1}) VS {name2} (#{pokemon_id2})")
+    print("=" * 50)
+
+    # Compare height.
+    height1 = pokemon1.get("height")
+    height2 = pokemon2.get("height")
+
+    print()
+    print("Physical comparison:")
+
+    if height1 is not None and height2 is not None:
+        height1_m = height1 / 10
+        height2_m = height2 / 10
+
+        print(f"Height: {name1}: {height1_m:.1f} m | {name2}: {height2_m:.1f} m")
+    else:
+        print("Height: unavailable")
+
+    # Compare weight.
+    weight1 = pokemon1.get("weight")
+    weight2 = pokemon2.get("weight")
+
+    if weight1 is not None and weight2 is not None:
+        weight1_kg = weight1 / 10
+        weight2_kg = weight2 / 10
+
+        print(f"Weight: {name1}: {weight1_kg:.1f} kg | {name2}: {weight2_kg:.1f} kg")
+    else:
+        print("Weight: unavailable")
+
+    # Extract base statistics.
+    stats1 = {
+        item["stat"]["name"]: item["base_stat"]
+        for item in pokemon1.get("stats", [])
+        if "stat" in item and "base_stat" in item
+    }
+
+    stats2 = {
+        item["stat"]["name"]: item["base_stat"]
+        for item in pokemon2.get("stats", [])
+        if "stat" in item and "base_stat" in item
+    }
+
+    print()
+    print("Base stats comparison:")
+    print("-" * 50)
+
+    # Compare stats that exist in both Pokemon.
+    common_stats = stats1.keys() & stats2.keys()
+    total1 = 0
+    total2 = 0
+
+    for stat_name in common_stats:
+        value1 = stats1[stat_name]
+        value2 = stats2[stat_name]
+        total1 += value1
+        total2 += value2
+
+        formatted_name = stat_name.replace("-", " ").capitalize()
+        print(f"{formatted_name:<17} {name1}: {value1:<3} | {name2}: {value2:<3}")
+    print("-" * 50)
+
+    # Compare total base stats.
+    print(f"Total stats: {name1}: {total1} | {name2}: {total2}")
+    if total1 > total2:
+        print(f"[V] {name1} has higher total stats")
+    elif total2 > total1:
+        print(f"[V] {name2} has higher total stats")
+    else:
+        print("[=] Both Pokemon have the same total stats")
+
+    print("=" * 50)
+    input("[V] Press anything to continue: ")
+
 # for option 5
 def give_information() -> None:
     print()
@@ -173,8 +261,6 @@ if __name__ == "__main__":
 
                 if pokeData != None:
                     print_pokemon_info(pokeData)
-                else:
-                    print("[X] No info found for that pokemon")
 
             elif option == 2:
                 pokeData = pokemon_API_data(None, randomize=True)
@@ -185,7 +271,13 @@ if __name__ == "__main__":
                 print_pokemon_info(pokeData,guess=True)
 
             elif option == 4:
-                print("4")
+                pokemon1 = input("[?] Name of the first pokemon: ").capitalize()
+                pokemon2 = input("[?] Name of the second pokemon: ").capitalize()
+                pokeData1 = pokemon_API_data(pokemon1)
+                pokeData2 = pokemon_API_data(pokemon2)
+
+                if pokeData1 != None and pokeData2 != None:
+                    compare_pokemon(pokeData1, pokeData2)
 
             elif option == 5:
                 give_information()
