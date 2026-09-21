@@ -9,13 +9,15 @@
 - Guess the name of a randomly selected Pokemon with up to three attempts.
 - Compare the physical data and total base stats of two Pokemon.
 - Handle common API and network errors with user-friendly messages.
+- Supports execution with command-line arguments
 
 ## Requirements
 
 - Python 3.9 or newer
 - Internet access
 
-The application uses the `requests` package to communicate with PokéAPI.
+The application uses the `requests` package to communicate with PokéAPI and the
+builtin `argparse` package for command_line arguments interactions.
 
 ## Installation
 
@@ -42,7 +44,7 @@ The application uses the `requests` package to communicate with PokéAPI.
 3. Install the dependencies:
 
 	```bash
-	python -m pip install -r requirements.txt
+	python3 -m pip install -r requirements.txt
 	```
 
 ## Usage
@@ -50,7 +52,7 @@ The application uses the `requests` package to communicate with PokéAPI.
 Start the application with:
 
 ```bash
-python pokeUniverse.py
+python3 pokeUniverse.py
 ```
 
 Choose an option from the interactive menu:
@@ -65,6 +67,11 @@ Choose an option from the interactive menu:
 | Any other number | Exit the application |
 
 Pokemon names can be entered using their standard names, such as `pikachu` or `charizard`. The API lookup is case-insensitive in practice because the application normalizes the input before making the request.
+
+You can also use the app with command-line arguments:
+```bash
+python3 pokeUniverse.py [option] [pokemon1 if option == 1 or option == 4] [pokemon2 if option == 4]
+```
 
 ## Project Structure
 

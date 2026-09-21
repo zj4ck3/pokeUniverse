@@ -1,14 +1,38 @@
 import requests
 __author__ = "zj4ck3"
 
+# parser for CLI argument
+def parseArgument() -> list:
+    import argparse
+
+    parser = argparse.ArgumentParser(description="PokeUniverse - Pokemon information and guessing game")
+    parser.add_argument(
+        "option",
+        type=int,
+        nargs="?",
+        help="Operation to perform"
+    )
+    parser.add_argument("pokemon", nargs="?")
+    parser.add_argument("pokemon2", nargs="?")
+    args = parser.parse_args()
+    args_list = list(vars(args).values())# for create a list from namespace object type
+
+    if args_list[0] == 1 and args_list[1] == None:
+        print("[X] Another argument is required: pokemon")
+        quit()
+    if args_list[0] == 4 and (args_list[1] == None or args_list[2] == None):
+        print("[X] Another argument is required: pokemon and/or pokemon2")
+        quit()
+    return args_list # returned [None, None, None] if no arguments are given
+
 # fetches Pokemon information from the API
 # return data of the pokemon if are available, None otherwise
 # if the user choose option 2 it choose a random name for fetch the info
-def pokemon_API_data(pokemon:str, randomize:bool=False) -> dict:
+def pokemon_API_data(pokemon:str, randomize:bool=False) -> dict | None:
     header = {"Content-Type":"application/json"}
     if randomize:
         from random import choice
-        true_URL = "https://pokeapi.co/api/v2/pokemon?limit=10000000" # hardcoded for all pokemons
+        true_URL = "https://pokeapi.co/api/v2/pokemon?limit=10000000" # hardcoded because API doesn't have max_id or similar
     else:
         true_URL = f"https://pokeapi.co/api/v2/pokemon/{pokemon}"
 
@@ -19,11 +43,11 @@ def pokemon_API_data(pokemon:str, randomize:bool=False) -> dict:
 
     # Error handling
     except requests.exceptions.Timeout:
-        print(f"\n[X] Timeout exceeded: {response.status_code}")
+        print(f"\n[X] Timeout exceeded")
         return
 
     except requests.exceptions.ConnectionError:
-        print(f"\n[X] Unable to connect to server: {response.status_code}")
+        print(f"\n[X] Unable to connect to server")
         return
 
     except requests.exceptions.HTTPError as error:
@@ -244,19 +268,31 @@ def give_information() -> None:
 
 if __name__ == "__main__":
     while True:
-        print("## WELCOME TO POKEUNIVERSE !!! ##")
-        print("[#] 1 - Pokemon info")
-        print("[#] 2 - Random pokemon")
-        print("[#] 3 - Guess the pokemon")
-        print("[#] 4 - Compare 2 pokemons")
-        print("[#] 5 - Information")
-        print("[#] other number - Exit")
+        args_list = parseArgument()
+        fromCLI = False
+        
+        if args_list[0] == None:
+            print("## WELCOME TO POKEUNIVERSE !!! ##")
+            print("[#] 1 - Pokemon info")
+            print("[#] 2 - Random pokemon")
+            print("[#] 3 - Guess the pokemon")
+            print("[#] 4 - Compare 2 pokemons")
+            print("[#] 5 - Information")
+            print("[#] other number - Exit")
         
         try:
-            option = int(input("[?] Choose an option: "))
+            if args_list[0] == None:
+                option = int(input("[?] Choose an option: "))
+                fromCLI = False
+            else:
+                option = args_list[0]
+                fromCLI = True
 
             if option == 1:
-                pokemon = input("[?] Name of the pokemon: ").capitalize()
+                if not fromCLI:
+                    pokemon = input("[?] Name of the pokemon: ").capitalize()
+                else:
+                    pokemon = args_list[1]
                 pokeData = pokemon_API_data(pokemon) # the description must be readable
 
                 if pokeData != None:
@@ -271,8 +307,12 @@ if __name__ == "__main__":
                 print_pokemon_info(pokeData,guess=True)
 
             elif option == 4:
-                pokemon1 = input("[?] Name of the first pokemon: ").capitalize()
-                pokemon2 = input("[?] Name of the second pokemon: ").capitalize()
+                if not fromCLI:
+                    pokemon1 = input("[?] Name of the first pokemon: ").capitalize()
+                    pokemon2 = input("[?] Name of the second pokemon: ").capitalize()
+                else:
+                    pokemon1 = args_list[1]
+                    pokemon2 = args_list[2]
                 pokeData1 = pokemon_API_data(pokemon1)
                 pokeData2 = pokemon_API_data(pokemon2)
 
@@ -287,5 +327,6 @@ if __name__ == "__main__":
             
         except ValueError:
             print("[X] Only numbers are allowed")
-        finally:
-        	print()
+        print()
+        if fromCLI:
+            quit()
