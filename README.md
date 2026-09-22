@@ -10,6 +10,7 @@
 - Compare the physical data and total base stats of two Pokemon.
 - Handle common API and network errors with user-friendly messages.
 - Supports execution with command-line arguments
+- Use of sqlite3 Database for statistics (IN PRODUCTION)
 
 ## Requirements
 
@@ -63,7 +64,9 @@ Choose an option from the interactive menu:
 | `2` | Display information for a random Pokemon |
 | `3` | Play the Pokemon guessing game |
 | `4` | Compare two Pokemon |
-| `5` | Display project information |
+| `5` | View some statistics - IN PROD |
+| `6` | Delete a username - IN PROD|
+| `7` | Display project information |
 | Any other number | Exit the application |
 
 Pokemon names can be entered using their standard names, such as `pikachu` or `charizard`. The API lookup is case-insensitive in practice because the application normalizes the input before making the request.

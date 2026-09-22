@@ -1,11 +1,12 @@
-import requests
+from requests import get, exceptions
+from sqlite3 import connect
 __author__ = "zj4ck3"
 
 # parser for CLI argument
 def parseArgument() -> list:
-    import argparse
+    from argparse import ArgumentParser
 
-    parser = argparse.ArgumentParser(description="PokeUniverse - Pokemon information and guessing game")
+    parser = ArgumentParser(description="PokeUniverse - Pokemon information and guessing game")
     parser.add_argument(
         "option",
         type=int,
@@ -25,6 +26,19 @@ def parseArgument() -> list:
         quit()
     return args_list # returned [None, None, None] if no arguments are given
 
+# create a database if it's not already there
+def init_db() -> None:
+    with connect("usrGuess.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute("""CREATE TABLE IF NOT EXISTS guesses(
+            id INTEGER PRIMARY KEY,
+            data TEXT DEFAULT (strftime('%Y-%m-%d', 'now')),
+            user TEXT NOT NULL,
+            guessed INTEGER NOT NULL CHECK(guessed == 0 OR guessed == 1),
+            attemp INTEGER NOT NULL CHECK(attemp < 4 AND attemp > 0)
+        )""")
+        return
+
 # fetches Pokemon information from the API
 # return data of the pokemon if are available, None otherwise
 # if the user choose option 2 it choose a random name for fetch the info
@@ -37,27 +51,27 @@ def pokemon_API_data(pokemon:str, randomize:bool=False) -> dict | None:
         true_URL = f"https://pokeapi.co/api/v2/pokemon/{pokemon}"
 
     try:
-        response = requests.get(true_URL,headers=header,timeout=10)
+        response = get(true_URL,headers=header,timeout=10)
         response.raise_for_status()
         pokeData = response.json() # create the dict
 
     # Error handling
-    except requests.exceptions.Timeout:
+    except exceptions.Timeout:
         print(f"\n[X] Timeout exceeded")
         return
 
-    except requests.exceptions.ConnectionError:
+    except exceptions.ConnectionError:
         print(f"\n[X] Unable to connect to server")
         return
 
-    except requests.exceptions.HTTPError as error:
+    except exceptions.HTTPError as error:
         if response.status_code == 404:
             print(f"\n[X] Pokemon {pokemon} not found")
         else:
             print(f"\n[X] HTTP Error: {error}")
         return
 
-    except requests.exceptions.RequestException as error:
+    except exceptions.RequestException as error:
         print(f"\n[X] Error during the request: {error}\n")
         return
 
@@ -267,17 +281,23 @@ def give_information() -> None:
 
 
 if __name__ == "__main__":
+    init_db()
+
     while True:
         args_list = parseArgument()
         fromCLI = False
         
         if args_list[0] == None:
+            usr = input("[?] Insert username: ")
+            print()
             print("## WELCOME TO POKEUNIVERSE !!! ##")
             print("[#] 1 - Pokemon info")
             print("[#] 2 - Random pokemon")
             print("[#] 3 - Guess the pokemon")
             print("[#] 4 - Compare 2 pokemons")
-            print("[#] 5 - Information")
+            print("[#] 5 - Statistics - IN PROD")
+            print("[#] 6 - Delete user - IN PROD")
+            print("[#] 7 - Information")
             print("[#] other number - Exit")
         
         try:
@@ -287,6 +307,11 @@ if __name__ == "__main__":
             else:
                 option = args_list[0]
                 fromCLI = True
+                
+                # ask the username only if it needs it
+                if option == 3:
+                    usr = input("[?] Insert username: ")
+                    print()
 
             if option == 1:
                 if not fromCLI:
@@ -320,6 +345,10 @@ if __name__ == "__main__":
                     compare_pokemon(pokeData1, pokeData2)
 
             elif option == 5:
+                pass # in PROD
+            elif option == 6:
+                pass # in PROD
+            elif option == 7:
                 give_information()
 
             else:

@@ -1,3 +1,4 @@
 venv/
 ex.py
 __pycache__/
+userGuess.db
