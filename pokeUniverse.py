@@ -39,6 +39,14 @@ def init_db() -> None:
         )""")
         return
 
+# for insert information into the database
+def insert_info(user, guessed, attemp) -> None:
+    with connect("usrGuess.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute("""INSERT INTO guesses(user, guessed, attemp)
+        VALUES (?,?,?)""",(user, guessed, attemp))
+    return
+
 # fetches Pokemon information from the API
 # return data of the pokemon if are available, None otherwise
 # if the user choose option 2 it choose a random name for fetch the info
@@ -88,6 +96,7 @@ def pokemon_API_data(pokemon:str, randomize:bool=False) -> dict | None:
 # print pokemon info in human readable format
 # or make the user guess one
 def print_pokemon_info(pokemon:dict, guess:bool=False) -> None:
+    global usr
     # Get the Pokémon name.
     # Use "Unknown" if the "name" key does not exist.
     name = pokemon.get("name", "Unknown").capitalize()
@@ -101,7 +110,7 @@ def print_pokemon_info(pokemon:dict, guess:bool=False) -> None:
     print()
     print("=" * 40)
     if guess:
-        print("[V] Guess the pokemon")
+        print(f"[V] Guess the pokemon {usr}")
     else:
         print(f"{name} (#{pokemon_id})")
     print("=" * 40)
@@ -171,11 +180,13 @@ def print_pokemon_info(pokemon:dict, guess:bool=False) -> None:
             name_guess = input("[?] Enter the name of the pokemon: ")
             if name_guess.capitalize() == name:
                 input("[V] Correct !!! Press anything to continue: ")
+                insert_info(usr, 1, i+1)
                 return
             else:
                 if i+1 == 3:
                     print(f"[X] Ultimate guess: wrong!! the name was: {name}")
                     input("[X] Press anything to continue: ")
+                    insert_info(usr, 0, 3)
                 else:
                     print(f"[X] Wrong, guess {i+1}/3")
     else:
@@ -282,14 +293,15 @@ def give_information() -> None:
 
 if __name__ == "__main__":
     init_db()
+    args_list = parseArgument()
+    fromCLI = False
 
-    while True:
-        args_list = parseArgument()
-        fromCLI = False
-        
+    if args_list[0] == None:
+        usr = input("[?] Insert username: ")
+        print()
+
+    while True:    
         if args_list[0] == None:
-            usr = input("[?] Insert username: ")
-            print()
             print("## WELCOME TO POKEUNIVERSE !!! ##")
             print("[#] 1 - Pokemon info")
             print("[#] 2 - Random pokemon")
@@ -307,7 +319,7 @@ if __name__ == "__main__":
             else:
                 option = args_list[0]
                 fromCLI = True
-                
+
                 # ask the username only if it needs it
                 if option == 3:
                     usr = input("[?] Insert username: ")
