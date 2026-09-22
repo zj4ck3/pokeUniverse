@@ -65,7 +65,7 @@ Choose an option from the interactive menu:
 | `3` | Play the Pokemon guessing game |
 | `4` | Compare two Pokemon |
 | `5` | View some statistics - IN PROD |
-| `6` | Delete a username - IN PROD|
+| `6` | Delete a username |
 | `7` | Display project information |
 | Any other number | Exit the application |
 

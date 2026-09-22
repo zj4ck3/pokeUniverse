@@ -40,11 +40,19 @@ def init_db() -> None:
         return
 
 # for insert information into the database
-def insert_info(user, guessed, attemp) -> None:
+def insert_info(user:str, guessed:bool, attemp:int) -> None:
     with connect("usrGuess.db") as conn:
         cursor = conn.cursor()
         cursor.execute("""INSERT INTO guesses(user, guessed, attemp)
         VALUES (?,?,?)""",(user, guessed, attemp))
+    return
+
+# for delete a user from a database
+def del_usr(user:str) -> None:
+    with connect("usrGuess.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute("""DELETE FROM guesses WHERE user=?""",(user,))
+        conn.commit()
     return
 
 # fetches Pokemon information from the API
@@ -308,7 +316,7 @@ if __name__ == "__main__":
             print("[#] 3 - Guess the pokemon")
             print("[#] 4 - Compare 2 pokemons")
             print("[#] 5 - Statistics - IN PROD")
-            print("[#] 6 - Delete user - IN PROD")
+            print("[#] 6 - Delete user")
             print("[#] 7 - Information")
             print("[#] other number - Exit")
         
@@ -359,7 +367,8 @@ if __name__ == "__main__":
             elif option == 5:
                 pass # in PROD
             elif option == 6:
-                pass # in PROD
+                usr = input("[?] Insert the user that you want to delete: ")
+                del_usr(usr)
             elif option == 7:
                 give_information()
 
