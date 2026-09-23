@@ -102,10 +102,12 @@ python3 pokeUniverse.py [option] [pokemon1 if option == 1 or option == 4] [pokem
 
 ```text
 pokeUniverse/
-├── pokeUniverse.py   # Application menu and Pokemon functionality
-├── requirements.txt  # Python dependencies
-├── LICENSE           # MIT license
-├── README.md         # Project documentation
+├── pokeUniverse.py     # Application menu
+├── pokemonFunction.py  # pokemon functionality and API
+├── databaseFunction.py # database functionality
+├── requirements.txt    # Python dependencies
+├── LICENSE             # MIT license
+├── README.md           # Project documentation
 ```
 
 ## API

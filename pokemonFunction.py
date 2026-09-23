@@ -1,0 +1,235 @@
+from requests import get, exceptions
+from databaseFunction import insert_info
+
+# fetches Pokemon information from the API
+# return data of the pokemon if are available, None otherwise
+# if the user choose option 2 it choose a random name for fetch the info
+def pokemon_API_data(pokemon:str, randomize:bool=False) -> dict | None:
+    header = {"Content-Type":"application/json"}
+    if randomize:
+        from random import choice
+        true_URL = "https://pokeapi.co/api/v2/pokemon?limit=10000000" # hardcoded because API doesn't have max_id or similar
+    else:
+        true_URL = f"https://pokeapi.co/api/v2/pokemon/{pokemon}"
+
+    try:
+        response = get(true_URL,headers=header,timeout=10)
+        response.raise_for_status()
+        pokeData = response.json() # create the dict
+
+    # Error handling
+    except exceptions.Timeout:
+        print(f"\n[X] Timeout exceeded")
+        return
+
+    except exceptions.ConnectionError:
+        print(f"\n[X] Unable to connect to server")
+        return
+
+    except exceptions.HTTPError as error:
+        if response.status_code == 404:
+            print(f"\n[X] Pokemon {pokemon} not found")
+        else:
+            print(f"\n[X] HTTP Error: {error}")
+        return
+
+    except exceptions.RequestException as error:
+        print(f"\n[X] Error during the request: {error}\n")
+        return
+
+    if randomize: # recursive call
+        pokemon_list = pokeData.get("results", [])
+        if not pokemon_list:
+            print("\n[X] No pokemon available")
+            return None
+
+        random_pokemon = choice(pokemon_list)
+        return pokemon_API_data(random_pokemon["name"])
+    return pokeData
+
+# print pokemon info in human readable format
+# or make the user guess one
+def print_pokemon_info(pokemon:dict, usr:str, guess:bool=False) -> None:
+    # Get the Pokémon name.
+    # Use "Unknown" if the "name" key does not exist.
+    name = pokemon.get("name", "Unknown").capitalize()
+
+    # Get the Pokémon ID.
+    # Use "?" if the "id" key does not exist.
+    pokemon_id = pokemon.get("id", "?")
+    height = pokemon.get("height")
+    weight = pokemon.get("weight")
+
+    print()
+    print("=" * 40)
+    if guess:
+        print(f"[V] Guess the pokemon {usr}")
+    else:
+        print(f"{name} (#{pokemon_id})")
+    print("=" * 40)
+
+    # Convert height from decimeters to meters.
+    if height is not None:
+        print(f"Height: {height / 10:.1f} m")
+    else:
+        print("Height: unavailable")
+
+    # Convert weight from hectograms to kilograms.
+    if weight is not None:
+        print(f"Weight: {weight / 10:.1f} kg")
+    else:
+        print("Weight: unavailable")
+
+    # Extract the names of the Pokémon's types.
+    types = [
+        item["type"]["name"].capitalize()
+        for item in pokemon.get("types", [])
+        if "type" in item and "name" in item["type"]
+    ]
+
+    if types:
+        print(f"Types: {', '.join(types)}")
+    else:
+        print("Types: unavailable")
+
+    # Extract the names of the Pokémon's abilities.
+    abilities = [
+        item["ability"]["name"]
+        .replace("-", " ")
+        .capitalize()
+        for item in pokemon.get("abilities", [])
+        if "ability" in item and "name" in item["ability"]
+    ]
+
+    if abilities:
+        print(f"Abilities: {', '.join(abilities)}")
+    else:
+        print("Abilities: unavailable")
+
+    # Create a dictionary containing the base statistics.
+    stats = {
+        item["stat"]["name"]: item["base_stat"]
+        for item in pokemon.get("stats", [])
+        if "stat" in item and "base_stat" in item
+    }
+
+    print("\nBase stats:")
+
+    if stats:
+        # Print each statistic on a separate line.
+        for stat_name, value in stats.items():
+            formatted_name = (
+                stat_name.replace("-", " ").capitalize()
+            )
+
+            print(f"  {formatted_name:<17} {value}")
+    else:
+        print("  Unavailable")
+
+    print("=" * 40)
+    if guess:
+        print()
+        for i in range(3):
+            name_guess = input("[?] Enter the name of the pokemon: ")
+            if name_guess.capitalize() == name:
+                input("[V] Correct !!! Press anything to continue: ")
+                insert_info(usr, 1, i+1)
+                return
+            else:
+                if i+1 == 3:
+                    print(f"[X] Ultimate guess: wrong!! the name was: {name}")
+                    input("[X] Press anything to continue: ")
+                    insert_info(usr, 0, 3)
+                else:
+                    print(f"[X] Wrong, guess {i+1}/3")
+    else:
+        input("[V] Press anything to continue: ")
+    return
+
+# compare 2 pokemon for option 4
+# i could put it all in print_pokemon_info but that would be caothic
+# and i also don't feel like it
+def compare_pokemon(pokemon1: dict, pokemon2: dict) -> None:
+    # Get the Pokémon names and IDs.
+    name1 = pokemon1.get("name", "Unknown").capitalize()
+    name2 = pokemon2.get("name", "Unknown").capitalize()
+    pokemon_id1 = pokemon1.get("id", "?")
+    pokemon_id2 = pokemon2.get("id", "?")
+
+    print()
+    print("=" * 50)
+    print("[V] Pokemon comparison")
+    print("=" * 50)
+    print(f"{name1} (#{pokemon_id1}) VS {name2} (#{pokemon_id2})")
+    print("=" * 50)
+
+    # Compare height.
+    height1 = pokemon1.get("height")
+    height2 = pokemon2.get("height")
+
+    print()
+    print("Physical comparison:")
+
+    if height1 is not None and height2 is not None:
+        height1_m = height1 / 10
+        height2_m = height2 / 10
+
+        print(f"Height: {name1}: {height1_m:.1f} m | {name2}: {height2_m:.1f} m")
+    else:
+        print("Height: unavailable")
+
+    # Compare weight.
+    weight1 = pokemon1.get("weight")
+    weight2 = pokemon2.get("weight")
+
+    if weight1 is not None and weight2 is not None:
+        weight1_kg = weight1 / 10
+        weight2_kg = weight2 / 10
+
+        print(f"Weight: {name1}: {weight1_kg:.1f} kg | {name2}: {weight2_kg:.1f} kg")
+    else:
+        print("Weight: unavailable")
+
+    # Extract base statistics.
+    stats1 = {
+        item["stat"]["name"]: item["base_stat"]
+        for item in pokemon1.get("stats", [])
+        if "stat" in item and "base_stat" in item
+    }
+
+    stats2 = {
+        item["stat"]["name"]: item["base_stat"]
+        for item in pokemon2.get("stats", [])
+        if "stat" in item and "base_stat" in item
+    }
+
+    print()
+    print("Base stats comparison:")
+    print("-" * 50)
+
+    # Compare stats that exist in both Pokemon.
+    common_stats = stats1.keys() & stats2.keys()
+    total1 = 0
+    total2 = 0
+
+    for stat_name in common_stats:
+        value1 = stats1[stat_name]
+        value2 = stats2[stat_name]
+        total1 += value1
+        total2 += value2
+
+        formatted_name = stat_name.replace("-", " ").capitalize()
+        print(f"{formatted_name:<17} {name1}: {value1:<3} | {name2}: {value2:<3}")
+    print("-" * 50)
+
+    # Compare total base stats.
+    print(f"Total stats: {name1}: {total1} | {name2}: {total2}")
+    if total1 > total2:
+        print(f"[V] {name1} has higher total stats")
+    elif total2 > total1:
+        print(f"[V] {name2} has higher total stats")
+    else:
+        print("[=] Both Pokemon have the same total stats")
+
+    print("=" * 50)
+    input("[V] Press anything to continue: ")
