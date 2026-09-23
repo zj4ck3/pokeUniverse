@@ -1,24 +1,46 @@
 # pokeUniverse
 
-`pokeUniverse` is a Python command-line application for exploring Pokemon data through the [PokéAPI](https://pokeapi.co/). Look up a Pokemon, discover a random Pokemon, play a guessing game, or compare the stats of two Pokemon from your terminal.
+`pokeUniverse` is a Python command-line application for exploring Pokémon data through the [PokéAPI](https://pokeapi.co/).
+
+The application allows users to look up Pokémon, discover random Pokémon, play a Pokémon guessing game, compare two Pokémon, and view statistics collected from the guessing game.
 
 ## Features
 
-- Display a Pokemon's ID, height, weight, types, abilities, and base stats.
-- Fetch a random Pokemon from the PokéAPI catalog.
-- Guess the name of a randomly selected Pokemon with up to three attempts.
-- Compare the physical data and total base stats of two Pokemon.
+- Display a Pokémon's:
+  - ID
+  - Height
+  - Weight
+  - Types
+  - Abilities
+  - Base stats
+- Fetch a random Pokémon from the PokéAPI catalog.
+- Guess the name of a randomly selected Pokémon with up to three attempts.
+- Store guessing-game results in a local SQLite database.
+- Track correct and incorrect guesses for each user.
+- Display user statistics, including:
+  - Total guesses
+  - Correct guesses
+  - Wrong guesses
+  - General accuracy
+  - Maximum personal winning streak
+  - General maximum winning streak
+- Delete all stored data associated with a username.
+- Compare the physical data and total base stats of two Pokémon.
 - Handle common API and network errors with user-friendly messages.
-- Supports execution with command-line arguments
-- Use of sqlite3 Database for statistics (IN PRODUCTION)
+- Support command-line arguments.
+- Provide an interactive terminal menu.
 
 ## Requirements
 
 - Python 3.9 or newer
 - Internet access
 
-The application uses the `requests` package to communicate with PokéAPI and the
-builtin `argparse` package for command_line arguments interactions.
+The application uses:
+
+- `requests` to communicate with PokéAPI.
+- `argparse` for command-line argument parsing.
+- `sqlite3` for storing guessing-game statistics.
+- `pathlib` for handling the database path.
 
 ## Installation
 
@@ -64,7 +86,7 @@ Choose an option from the interactive menu:
 | `2` | Display information for a random Pokemon |
 | `3` | Play the Pokemon guessing game |
 | `4` | Compare two Pokemon |
-| `5` | View some statistics - IN PROD |
+| `5` | View some statistics |
 | `6` | Delete a username |
 | `7` | Display project information |
 | Any other number | Exit the application |

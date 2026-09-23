@@ -63,14 +63,14 @@ def statistic(user:str) -> None:
     with connect(PATH / "usrGuess.db") as conn:
         cursor = conn.cursor()
         # first query for total not guessed
-        cursor.execute("""FROM guesses 
-            SELECT COUNT(*)
+        cursor.execute("""SELECT COUNT(*)
+            FROM guesses
             WHERE user=? AND guessed=0""",(user,))
         totNotGuessed = cursor.fetchone()[0]
 
         # query for total guessed
-        cursor.execute("""FROM guesses
-            SELECT COUNT(*)
+        cursor.execute("""SELECT COUNT(*)
+            FROM guesses
             WHERE user=? AND guessed=1""",(user,))
         totGuessed = cursor.fetchone()[0]
 
@@ -132,10 +132,12 @@ def statistic(user:str) -> None:
     print(f"Total pokemon guesses: {totGuessed + totNotGuessed}")
     print(f"Correct pokemon guesses: {totGuessed}")
     print(f"Wrong pokemon guesses: {totNotGuessed}")
-    print(f"General accuracy: {((totGuessed/(totGuessed+totNotGuessed))*100):.2f} %")
+    if totNotGuessed+totGuessed != 0:
+        print(f"General accuracy: {((totGuessed/(totGuessed+totNotGuessed))*100):.2f} %")
     print()
     print(f"Max streak of {user}: {streakUsr}")
-    print(f"General streak record: {result[1]} of {result[0]}")
+    if result != None and result[0] != None and result[1] != None:
+        print(f"General streak record: {result[1]} of {result[0]}")
     print("=" * 40)
     input("[V] Press anything to continue: ")
     return
@@ -400,7 +402,7 @@ if __name__ == "__main__":
             print("[#] 2 - Random pokemon")
             print("[#] 3 - Guess the pokemon")
             print("[#] 4 - Compare 2 pokemons")
-            print("[#] 5 - Statistics - IN PROD")
+            print("[#] 5 - Statistics")
             print("[#] 6 - Delete user")
             print("[#] 7 - Information")
             print("[#] other number - Exit")
