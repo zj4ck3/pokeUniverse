@@ -44,9 +44,11 @@ if __name__ == "__main__":
     if args_list[0] == None:
         usr = input("[?] Insert username: ")
         print()
-    else: usr = ""
+    else: 
+        usr = ""
 
-    while True:    
+    while True:
+        check_cache_space()
         if args_list[0] == None:
             print("## WELCOME TO POKEUNIVERSE !!! ##")
             print("[#] 1 - Pokemon info")
@@ -125,5 +127,6 @@ if __name__ == "__main__":
         except ValueError:
             print("[X] Only numbers are allowed")
         print()
+
         if fromCLI:
             quit()

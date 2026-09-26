@@ -148,7 +148,30 @@ def add_cache_pokemon(pokemon:str, pokeData:dict) -> None:
 # it checked if there is space for cache otherwise it delete
 # the older and less use
 def check_cache_space() -> None:
-    pass # IN PROD
+    dir = PATH / "cache"
+    nFileJson = 0
+    for file in dir.glob("*.json"):
+        nFileJson += 1
+
+    if nFileJson >= 6:
+        with connect(dir / "cacheHandling.db") as conn:
+            cursor = conn.cursor()
+            # la formula permette di scegliere e pesare il +
+            # vecchio e allo stesso tempo quello scelto meno volte
+            cursor.execute("""SELECT pokemon
+                FROM mostChoose 
+                ORDER BY (julianday('now') - julianday(date)) / sqrt(nOfTime)
+                DESC LIMIT 1""" )
+            result = cursor.fetchone()
+        
+        if result != None:
+            file = dir / f"{result[0]}.json"
+            file.unlink()
+
+            with connect(dir / "cacheHandling.db") as conn:
+                        cursor = conn.cursor()
+                        cursor.execute("""DELETE FROM mostChoose WHERE pokemon=?""",(result[0],))
+    return
 
 # delete the rows on the table on cacheHandling.db and all the cache
 def delete_cache() -> None:
