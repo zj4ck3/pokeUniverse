@@ -124,15 +124,49 @@ def statistic(user:str) -> None:
     input("[V] Press anything to continue: ")
     return
 
-# aggiunge il pokemon nel database e il file se non c'è già
-def add_cache_pokemon(pokemon:str, pokeData:list) -> None:
-    pass # IN PROD
+# add the pokemon in database and in file if there isn't yet
+def add_cache_pokemon(pokemon:str, pokeData:dict) -> None:
+    with connect(PATH / "cache/cacheHandling.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute("""SELECT nOfTime 
+            FROM mostChoose 
+            WHERE pokemon=?""",(pokemon,))
+        nOfTime = cursor.fetchone()
+
+        if nOfTime == None:
+            cursor.execute("""INSERT INTO mostChoose(pokemon,nOfTime)
+                VALUES (?,1)""", (pokemon,))
+            with open(PATH / f"cache/{pokemon}.json", "w") as file:
+                file.write(str(pokeData))
+        else:
+            cursor.execute("""UPDATE mostChoose
+                SET nOfTime = ?, date = strftime('%Y-%m-%d', 'now')
+                WHERE pokemon = ?""", (nOfTime[0]+1,pokemon))
+        return
+        
 
 # it checked if there is space for cache otherwise it delete
 # the older and less use
 def check_cache_space() -> None:
     pass # IN PROD
 
-# delete the table on cacheHandling.db
+# delete the rows on the table on cacheHandling.db and all the cache
 def delete_cache() -> None:
-    pass # IN PROD
+    dir = PATH / "cache"
+    done = True
+
+    # delete all the rows on the table
+    with connect(dir / "cacheHandling.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute("""DELETE FROM mostChoose""")
+
+    # delete all the .json file
+    for file in dir.glob("*.json"):
+        try:
+            file.unlink()
+        except OSError as error:
+            print(f"[X] Can't delete {file}: {error}")
+            done = False
+    if done:
+        print("[V] Done")
+    return

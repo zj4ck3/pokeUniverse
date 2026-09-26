@@ -55,7 +55,7 @@ if __name__ == "__main__":
             print("[#] 4 - Compare 2 pokemons")
             print("[#] 5 - Statistics")
             print("[#] 6 - Delete user")
-            print("[#] 7 - Delete cache - IN PROD")
+            print("[#] 7 - Delete cache")
             print("[#] 8 - Information")
             print("[#] other number - Exit")
         
@@ -81,6 +81,7 @@ if __name__ == "__main__":
 
                 if pokeData != None:
                     print_pokemon_info(pokeData, usr)
+                    add_cache_pokemon(pokemon, pokeData)
 
             elif option == 2:
                 pokeData = pokemon_API_data(None, randomize=True)
@@ -102,6 +103,8 @@ if __name__ == "__main__":
 
                 if pokeData1 != None and pokeData2 != None:
                     compare_pokemon(pokeData1, pokeData2)
+                    add_cache_pokemon(pokemon1, pokeData1)
+                    add_cache_pokemon(pokemon2, pokeData2)
 
             elif option == 5:
                 statistic(usr)
