@@ -111,7 +111,7 @@ if __name__ == "__main__":
                 del_usr(usr)
 
             elif option == 7:
-                pass 
+                delete_cache()
 
             elif option == 8:
                 give_information()

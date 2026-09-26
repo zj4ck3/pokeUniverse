@@ -123,3 +123,16 @@ def statistic(user:str) -> None:
     print("=" * 40)
     input("[V] Press anything to continue: ")
     return
+
+# aggiunge il pokemon nel database e il file se non c'è già
+def add_cache_pokemon(pokemon:str, pokeData:list) -> None:
+    pass # IN PROD
+
+# it checked if there is space for cache otherwise it delete
+# the older and less use
+def check_cache_space() -> None:
+    pass # IN PROD
+
+# delete the table on cacheHandling.db
+def delete_cache() -> None:
+    pass # IN PROD
