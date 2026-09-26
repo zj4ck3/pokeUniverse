@@ -20,7 +20,7 @@ def init_dbs() -> None:
                 id INTEGER PRIMARY KEY,
                 date TEXT DEFAULT (strftime('%Y-%m-%d', 'now')) NOT NULL,
                 pokemon TEXT NOT NULL UNIQUE,
-                nOfTime INTEGER NOT NULL CHECK(nOfTime >= 1),
+                nOfTime INTEGER NOT NULL CHECK(nOfTime > 0)
             )""")
     return
 

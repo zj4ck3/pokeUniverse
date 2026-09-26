@@ -2,5 +2,5 @@ venv/
 ex.py
 __pycache__/
 usrGuess.db
-uploads/*
-!uploads/.gitkeep
+cache/*
+!cache/.gitkeep
