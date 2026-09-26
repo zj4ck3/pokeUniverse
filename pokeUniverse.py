@@ -37,7 +37,7 @@ def give_information() -> None:
 
 
 if __name__ == "__main__":
-    init_db()
+    init_dbs()
     args_list = parseArgument()
     fromCLI = False
 
@@ -55,7 +55,8 @@ if __name__ == "__main__":
             print("[#] 4 - Compare 2 pokemons")
             print("[#] 5 - Statistics")
             print("[#] 6 - Delete user")
-            print("[#] 7 - Information")
+            print("[#] 7 - Delete cache - IN PROD")
+            print("[#] 8 - Information")
             print("[#] other number - Exit")
         
         try:
@@ -110,6 +111,9 @@ if __name__ == "__main__":
                 del_usr(usr)
 
             elif option == 7:
+                pass 
+
+            elif option == 8:
                 give_information()
 
             else:

@@ -2,8 +2,8 @@ from sqlite3 import connect
 from pathlib import Path
 PATH = Path(__file__).resolve().parent
 
-# create a database if it's not already there
-def init_db() -> None:
+# create the 2 database if there's not already there
+def init_dbs() -> None:
     with connect(PATH / "usrGuess.db") as conn:
         cursor = conn.cursor()
         cursor.execute("""CREATE TABLE IF NOT EXISTS guesses(
@@ -13,9 +13,18 @@ def init_db() -> None:
             guessed INTEGER NOT NULL CHECK(guessed == 0 OR guessed == 1),
             attemp INTEGER NOT NULL CHECK(attemp < 4 AND attemp > 0)
         )""")
-        return
 
-# for insert information into the database
+    with connect(PATH / "cache/cacheHandling.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute("""CREATE TABLE IF NOT EXISTS mostChoose(
+                id INTEGER PRIMARY KEY,
+                date TEXT DEFAULT (strftime('%Y-%m-%d', 'now')) NOT NULL,
+                pokemon TEXT NOT NULL UNIQUE,
+                nOfTime INTEGER NOT NULL CHECK(nOfTime >= 1),
+            )""")
+    return
+
+# for insert information into the pokemon database
 def insert_info(user:str, guessed:bool, attemp:int) -> None:
     with connect(PATH / "usrGuess.db") as conn:
         cursor = conn.cursor()
@@ -23,7 +32,7 @@ def insert_info(user:str, guessed:bool, attemp:int) -> None:
         VALUES (?,?,?)""",(user, guessed, attemp))
     return
 
-# for delete a user from a database
+# for delete a user from a pokemon database
 def del_usr(user:str) -> None:
     with connect(PATH / "usrGuess.db") as conn:
         cursor = conn.cursor()
@@ -31,7 +40,7 @@ def del_usr(user:str) -> None:
         conn.commit()
     return
 
-# query for statistic
+# query for statistic in pokemon database
 def statistic(user:str) -> None:
     with connect(PATH / "usrGuess.db") as conn:
         cursor = conn.cursor()
