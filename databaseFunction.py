@@ -1,5 +1,6 @@
 from sqlite3 import connect
 from pathlib import Path
+from json import dump
 PATH = Path(__file__).resolve().parent
 
 # create the 2 database if there's not already there
@@ -137,7 +138,7 @@ def add_cache_pokemon(pokemon:str, pokeData:dict) -> None:
             cursor.execute("""INSERT INTO mostChoose(pokemon,nOfTime)
                 VALUES (?,1)""", (pokemon,))
             with open(PATH / f"cache/{pokemon}.json", "w") as file:
-                file.write(str(pokeData))
+                dump(pokeData, file, ensure_ascii=False, indent=4)
         else:
             cursor.execute("""UPDATE mostChoose
                 SET nOfTime = ?, date = strftime('%Y-%m-%d', 'now')

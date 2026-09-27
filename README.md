@@ -26,6 +26,8 @@ The application allows users to look up Pokémon, discover random Pokémon, play
   - General maximum winning streak
 - Delete all stored data associated with a username.
 - Compare the physical data and total base stats of two Pokémon.
+- Use of cache for a more responsive app and an offline opportunity
+- Delete the cache for freeing memory or eventually error reset
 - Handle common API and network errors with user-friendly messages.
 - Support command-line arguments.
 - Provide an interactive terminal menu.
@@ -41,6 +43,7 @@ The application uses:
 - `argparse` for command-line argument parsing.
 - `sqlite3` for storing guessing-game statistics.
 - `pathlib` for handling the database path.
+- `json` for handling json data
 
 ## Installation
 
@@ -88,7 +91,8 @@ Choose an option from the interactive menu:
 | `4` | Compare two Pokemon |
 | `5` | View some statistics |
 | `6` | Delete a username |
-| `7` | Display project information |
+| `7` | Delete cache|
+| `8` | Display project information |
 | Any other number | Exit the application |
 
 Pokemon names can be entered using their standard names, such as `pikachu` or `charizard`. The API lookup is case-insensitive in practice because the application normalizes the input before making the request.
@@ -108,6 +112,7 @@ pokeUniverse/
 ├── requirements.txt    # Python dependencies
 ├── LICENSE             # MIT license
 ├── README.md           # Project documentation
+├── cache/              # for a more responsive info about pokemon
 ```
 
 ## API
