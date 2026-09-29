@@ -1,6 +1,17 @@
 from pokemonFunction import *
 from databaseFunction import *
+from json import load
 __author__ = "zj4ck3"
+
+# search the pokemon data in cache and if not present with API
+def search_data(pokemon:str) -> list:
+    file = PATH / "cache" / f"{pokemon}.json"
+    if file.exists():
+        with open(file, "r", encoding="utf-8") as f:
+            pokeData = load(f)
+        return pokeData
+    else:
+        return pokemon_API_data(pokemon)
 
 # parser for CLI argument
 def parseArgument() -> list:
@@ -79,7 +90,7 @@ if __name__ == "__main__":
                     pokemon = input("[?] Name of the pokemon: ").capitalize()
                 else:
                     pokemon = args_list[1]
-                pokeData = pokemon_API_data(pokemon) # the description must be readable
+                pokeData = search_data(pokemon) # the description must be readable
 
                 if pokeData != None:
                     print_pokemon_info(pokeData, usr)
@@ -100,8 +111,8 @@ if __name__ == "__main__":
                 else:
                     pokemon1 = args_list[1]
                     pokemon2 = args_list[2]
-                pokeData1 = pokemon_API_data(pokemon1)
-                pokeData2 = pokemon_API_data(pokemon2)
+                pokeData1 = search_data(pokemon1)
+                pokeData2 = search_data(pokemon2)
 
                 if pokeData1 != None and pokeData2 != None:
                     compare_pokemon(pokeData1, pokeData2)
