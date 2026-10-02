@@ -59,7 +59,6 @@ if __name__ == "__main__":
         usr = ""
 
     while True:
-        check_cache_space()
         if args_list[0] == None:
             print("## WELCOME TO POKEUNIVERSE !!! ##")
             print("[#] 1 - Pokemon info")
@@ -89,7 +88,7 @@ if __name__ == "__main__":
                 if not fromCLI:
                     pokemon = input("[?] Name of the pokemon: ").capitalize()
                 else:
-                    pokemon = args_list[1]
+                    pokemon = args_list[1].capitalize()
                 pokeData = search_data(pokemon) # the description must be readable
 
                 if pokeData != None:
@@ -109,8 +108,8 @@ if __name__ == "__main__":
                     pokemon1 = input("[?] Name of the first pokemon: ").capitalize()
                     pokemon2 = input("[?] Name of the second pokemon: ").capitalize()
                 else:
-                    pokemon1 = args_list[1]
-                    pokemon2 = args_list[2]
+                    pokemon1 = args_list[1].capitalize()
+                    pokemon2 = args_list[2].capitalize()
                 pokeData1 = search_data(pokemon1)
                 pokeData2 = search_data(pokemon2)
 
@@ -138,6 +137,7 @@ if __name__ == "__main__":
         except ValueError:
             print("[X] Only numbers are allowed")
         print()
+        check_cache_space()
 
         if fromCLI:
             quit()
